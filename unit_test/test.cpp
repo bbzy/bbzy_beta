@@ -7,5 +7,6 @@ int main()
 {
 	test_type();
 	test_unity();
+	test_disambiguate();
 	std::cout << "Test All OK" << std::endl;
 }

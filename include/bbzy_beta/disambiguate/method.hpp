@@ -2,19 +2,27 @@
 
 namespace bbzy {
 namespace disam {
-template <class RetT, class ClassT, class... ParamTs>
-inline auto getMethod(RetT(ClassT::*m)(ParamTs...)) ->
-RetT(ClassT::*)(ParamTs...)
+namespace detail {
+template <class ReturnT, class... MethodParamTs>
+struct Method
 {
-	return m;
+	template <class ClassT>
+	static auto get(ReturnT(ClassT::*method)(MethodParamTs...)) ->
+		ReturnT(ClassT::*)(MethodParamTs...)
+	{
+		return method;
+	}
+
+	template <class ClassT>
+	static auto getConst(ReturnT(ClassT::*method)(MethodParamTs...)const) ->
+		ReturnT(ClassT::*)(MethodParamTs...)const
+	{
+		return method;
+	}
+};
 }
 
-template <class RetT, class ClassT, class... ParamTs>
-inline auto getCMethod(RetT(ClassT::*cm)(ParamTs...) const) ->
-RetT(ClassT::*)(ParamTs...) const
-{
-	return cm;
-}
+using detail::Method;
 
 }
 }

@@ -1,12 +1,21 @@
 #pragma once
+#include <type_traits>
+#include "../common.hpp"
 namespace bbzy {
 namespace disam {
-template <class RetT, class... FunArgTs>
-inline auto getFunction(RetT(*f)(FunArgTs...))->
-RetT(*)(FunArgTs...)
+namespace detail {
+template <class ReturnT, class... FuncParamTs>
+struct Function
 {
-	return f;
+	static auto get(ReturnT(*func)(FuncParamTs...)) ->
+		ReturnT(*)(FuncParamTs...)
+	{
+		return func;
+	}
+};
 }
+
+using detail::Function;
 
 }
 }
