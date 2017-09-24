@@ -9,6 +9,58 @@ namespace bbzy {
 namespace type {
 namespace detail {
 template <class FunctionT>
+struct IsFunction
+{
+private:
+    using DecayedFunctionT = Decay<FunctionT>;
+
+private:
+    template <class HelperT>
+    struct Helper
+    {
+        enum {value = 0};
+    };
+
+    template <class RetT, class... ParamTs>
+    struct Helper<RetT(*)(ParamTs...)>
+    {
+        enum {value = 1};
+    };
+
+public:
+    enum {value = Helper<DecayedFunctionT>::value};
+};
+
+template <class MemberFunctionT>
+struct IsMemberFunction
+{
+private:
+    using DecayedMemberFunctionT = Decay<MemberFunctionT>;
+
+private:
+    template <class HelperT>
+    struct Helper
+    {
+        enum {value = 0};
+    };
+
+    template <class RetT, class ClassT, class... ParamTs>
+    struct Helper<RetT(ClassT::*)(ParamTs...)>
+    {
+        enum {value = 1};
+    };
+
+    template <class RetT, class ClassT, class... ParamTs>
+    struct Helper<RetT(ClassT::*)(ParamTs...) const>
+    {
+        enum {value = 1};
+    };
+
+public:
+    enum {value = Helper<DecayedMemberFunctionT>::value};
+};
+
+template <class FunctionT>
 struct UnifiedFunctionType
 {
 private:
@@ -146,59 +198,12 @@ struct GetMemberFunctionClassType
 		ElemT<typename GetFunctionParamType<0, MemberFunctionT>::type>>;
 };
 
+}
 template <class FunctionT>
-struct IsFunction
-{
-private:
-	using DecayedFunctionT = Decay<FunctionT>;
-
-private:
-	template <class HelperT>
-	struct Helper
-	{
-		enum {value = 0};
-	};
-
-	template <class RetT, class... ParamTs>
-	struct Helper<RetT(*)(ParamTs...)>
-	{
-		enum {value = 1};
-	};
-
-public:
-	enum {value = Helper<DecayedFunctionT>::value};
-};
+using IsFunction = detail::IsFunction<FunctionT>;
 
 template <class MemberFunctionT>
-struct IsMemberFunction
-{
-private:
-	using DecayedMemberFunctionT = Decay<MemberFunctionT>;
-
-private:
-	template <class HelperT>
-	struct Helper
-	{
-		enum {value = 0};
-	};
-
-	template <class RetT, class ClassT, class... ParamTs>
-	struct Helper<RetT(ClassT::*)(ParamTs...)>
-	{
-		enum {value = 1};
-	};
-
-	template <class RetT, class ClassT, class... ParamTs>
-	struct Helper<RetT(ClassT::*)(ParamTs...) const>
-	{
-		enum {value = 1};
-	};
-
-public:
-	enum {value = Helper<DecayedMemberFunctionT>::value};
-};
-
-}
+using IsMemberFunction = detail::IsMemberFunction<MemberFunctionT>;
 
 template <class FunctionT>
 using UnifiedFunctionType = typename detail::UnifiedFunctionType<FunctionT>::type;
@@ -220,12 +225,6 @@ using GetFunPT = GetFunctionParamType<index, FunctionT>;
 
 template <class MemberFunctionT>
 using GetMemberFunctionClassType = typename detail::GetMemberFunctionClassType<MemberFunctionT>::type;
-
-template <class FunctionT>
-using IsFunction = detail::IsFunction<FunctionT>;
-
-template <class MemberFunctionT>
-using IsMemberFunction = detail::IsMemberFunction<MemberFunctionT>;
 
 }
 }
