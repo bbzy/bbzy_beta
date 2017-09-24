@@ -267,8 +267,8 @@ void _test_type_function()
 	static_assert(std::is_same<GetFunPT<1, int (int, long, short)>, long>::value, "");
 	static_assert(std::is_same<GetFunPT<1, int (TestC::*)(int, long, short)>, int>::value, "");
 
-	static_assert(std::is_same<GetMethodClassType<int (TestC::*)(int, long, short)>, TestC>::value, "");
-	static_assert(std::is_same<GetMethodClassType<int (TestC::*)(int, long, short)const>, const TestC>::value, "");
+	static_assert(std::is_same<GetMemberFunctionClassType<int (TestC::*)(int, long, short)>, TestC>::value, "");
+	static_assert(std::is_same<GetMemberFunctionClassType<int (TestC::*)(int, long, short)const>, const TestC>::value, "");
 
 	static_assert(IsFunction<int ()>::value, "");
 	static_assert(IsFunction<int (int, int&, int&&, int*, int**, int**&&)>::value, "");

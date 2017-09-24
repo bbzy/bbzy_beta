@@ -33,7 +33,7 @@ void _test_disambiguate_function()
 }
 
 template <class = void>
-void _test_disambiguate_method()
+void _test_disambiguate_member_function()
 {
 	using namespace bbzy::disam;
 	struct TestC
@@ -56,16 +56,16 @@ void _test_disambiguate_method()
 		}
 	};
 
-	auto a = Method<int>::get(&TestC::fun);
-	auto b = Method<int>::getConst(&TestC::fun);
-	auto c = Method<int, int>::getConst(&TestC::fun);
-	auto d = Method<int*, long>::get(&TestC::fun);
+	auto a = MemberFunction<int>::get(&TestC::fun);
+	auto b = MemberFunction<int>::getConst(&TestC::fun);
+	auto c = MemberFunction<int, int>::getConst(&TestC::fun);
+	auto d = MemberFunction<int*, long>::get(&TestC::fun);
 }
 
 template <class = void>
 void test_disambiguate()
 {
 	_test_disambiguate_function();
-	_test_disambiguate_method();
+	_test_disambiguate_member_function();
 	std::cout << "Test Disambiguate OK" << std::endl;
 }

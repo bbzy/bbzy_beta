@@ -37,7 +37,7 @@ private:
 			{
 				throw std::runtime_error("Null Pointer");
 			}
-			return std::forward<ReturnType>(callMethod(
+			return std::forward<ReturnType>(callMemberFunction(
 				std::forward<HelperFunctionT&&>(func), std::forward<ArgTs&&>(args)...));
 		}
 
@@ -56,7 +56,7 @@ private:
 
 	private:
 		template <class ObjectT, class... MemArgTs>
-		static ReturnType callMethod(HelperFunctionT&& func, ObjectT&& object, MemArgTs&&... args)
+		static ReturnType callMemberFunction(HelperFunctionT&& func, ObjectT&& object, MemArgTs&&... args)
 		{
 			return std::forward<ReturnType>((object.*func)(std::forward<MemArgTs&&>(args)...));
 		}

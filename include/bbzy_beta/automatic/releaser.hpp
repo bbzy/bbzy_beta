@@ -43,12 +43,12 @@ protected:
 };
 
 template <class ObjectT, class ReleaseFunctionT>
-class ReleaseObjectMethod :
+class ReleaseObjectMemberFunction :
 	public ReleaseObjectProperty<ObjectT>,
 	public ReleaseFunctionProperty<ReleaseFunctionT>
 {
 public:
-	ReleaseObjectMethod(ObjectT* object, ReleaseFunctionT&& releaseFunction) :
+	ReleaseObjectMemberFunction(ObjectT* object, ReleaseFunctionT&& releaseFunction) :
 		ReleaseObjectProperty<ObjectT>(object),
 		ReleaseFunctionProperty<ReleaseFunctionT>(std::forward<ReleaseFunctionT&&>(releaseFunction))
 	{
@@ -123,10 +123,10 @@ public:
 };
 
 template <class ObjectT, class ReleaseFunctionT>
-class ObjectReleaser : public ReleaseObjectMethod<ObjectT, ReleaseFunctionT>
+class ObjectReleaser : public ReleaseObjectMemberFunction<ObjectT, ReleaseFunctionT>
 {
 public:
-	using ReleaseObjectMethod<ObjectT, ReleaseFunctionT>::ReleaseObjectMethod;
+	using ReleaseObjectMemberFunction<ObjectT, ReleaseFunctionT>::ReleaseObjectMemberFunction;
 
 public:
 	~ObjectReleaser()
@@ -156,11 +156,11 @@ public:
 
 template <class ObjectT, class ReleaseFunctionT>
 class CancellableObjectReleaser :
-	public ReleaseObjectMethod<ObjectT, ReleaseFunctionT>,
+	public ReleaseObjectMemberFunction<ObjectT, ReleaseFunctionT>,
 	public CancellableProperty
 {
 public:
-	using ReleaseObjectMethod<ObjectT, ReleaseFunctionT>::ReleaseObjectMethod;
+	using ReleaseObjectMemberFunction<ObjectT, ReleaseFunctionT>::ReleaseObjectMemberFunction;
 
 public:
 	~CancellableObjectReleaser()

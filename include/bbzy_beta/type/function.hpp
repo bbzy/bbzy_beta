@@ -139,11 +139,11 @@ public:
 	using type = typename Helper<typename UnifiedFunctionType<FunctionT>::type>::type;
 };
 
-template <class MethodT>
-struct GetMethodClassType
+template <class MemberFunctionT>
+struct GetMemberFunctionClassType
 {
-	using type = EnableIf<std::is_member_function_pointer<MethodT>::value, 
-		ElemT<typename GetFunctionParamType<0, MethodT>::type>>;
+	using type = EnableIf<std::is_member_function_pointer<MemberFunctionT>::value, 
+		ElemT<typename GetFunctionParamType<0, MemberFunctionT>::type>>;
 };
 
 template <class FunctionT>
@@ -218,8 +218,8 @@ using GetFunctionParamType = typename detail::GetFunctionParamType<index, Functi
 template <size_t index, class FunctionT>
 using GetFunPT = GetFunctionParamType<index, FunctionT>;
 
-template <class MethodT>
-using GetMethodClassType = typename detail::GetMethodClassType<MethodT>::type;
+template <class MemberFunctionT>
+using GetMemberFunctionClassType = typename detail::GetMemberFunctionClassType<MemberFunctionT>::type;
 
 template <class FunctionT>
 using IsFunction = detail::IsFunction<FunctionT>;
