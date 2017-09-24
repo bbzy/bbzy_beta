@@ -142,7 +142,7 @@ public:
 template <class MemberFunctionT>
 struct GetMemberFunctionClassType
 {
-	using type = EnableIf<std::is_member_function_pointer<MemberFunctionT>::value, 
+	using type = EnableIf<IsMemberFunction<MemberFunctionT>::value,
 		ElemT<typename GetFunctionParamType<0, MemberFunctionT>::type>>;
 };
 
