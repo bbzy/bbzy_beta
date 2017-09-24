@@ -27,3 +27,5 @@
 *.exe
 *.out
 *.app
+.DS_Store
+unit_test/cmake_build_*
