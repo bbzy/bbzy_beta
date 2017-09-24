@@ -146,6 +146,58 @@ struct GetMethodClassType
 		ElemT<typename GetFunctionParamType<0, MethodT>::type>>;
 };
 
+template <class FunctionT>
+struct IsFunction
+{
+private:
+	using DecayedFunctionT = Decay<FunctionT>;
+
+private:
+	template <class HelperT>
+	struct Helper
+	{
+		enum {value = 0};
+	};
+
+	template <class RetT, class... ParamTs>
+	struct Helper<RetT(*)(ParamTs...)>
+	{
+		enum {value = 1};
+	};
+
+public:
+	enum {value = Helper<DecayedFunctionT>::value};
+};
+
+template <class MemberFunctionT>
+struct IsMemberFunction
+{
+private:
+	using DecayedMemberFunctionT = Decay<MemberFunctionT>;
+
+private:
+	template <class HelperT>
+	struct Helper
+	{
+		enum {value = 0};
+	};
+
+	template <class RetT, class ClassT, class... ParamTs>
+	struct Helper<RetT(ClassT::*)(ParamTs...)>
+	{
+		enum {value = 1};
+	};
+
+	template <class RetT, class ClassT, class... ParamTs>
+	struct Helper<RetT(ClassT::*)(ParamTs...) const>
+	{
+		enum {value = 1};
+	};
+
+public:
+	enum {value = Helper<DecayedMemberFunctionT>::value};
+};
+
 }
 
 template <class FunctionT>
@@ -168,6 +220,12 @@ using GetFunPT = GetFunctionParamType<index, FunctionT>;
 
 template <class MethodT>
 using GetMethodClassType = typename detail::GetMethodClassType<MethodT>::type;
+
+template <class FunctionT>
+using IsFunction = detail::IsFunction<FunctionT>;
+
+template <class MemberFunctionT>
+using IsMemberFunction = detail::IsMemberFunction<MemberFunctionT>;
 
 }
 }

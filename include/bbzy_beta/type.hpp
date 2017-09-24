@@ -7,3 +7,4 @@
 #include "type/index_type.hpp"
 #include "type/function.hpp"
 #include "type/type_wrapper.hpp"
+#include "type/empty.hpp"

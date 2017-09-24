@@ -61,21 +61,26 @@ protected:
 	}
 
 private:
-	template <class = EnableIf<std::is_member_function_pointer<ReleaseFunctionT>::value>>
+	template <class InnerReleaseFunctionT = ReleaseFunctionT,
+		class = EnableIf<type::IsMemberFunction<InnerReleaseFunctionT>::value>>
 	void release(void*)
 	{
 		(this->m_object->*this->m_releaseFunction)();
 	}
 
-	template <class = EnableIf<std::is_member_function_pointer<ReleaseFunctionT>::value == false>,
-	class = EnableIf<std::is_same<type::GetFunPT<0, ReleaseFunctionT>, ObjectT*>::value>>
+	template <class InnerReleaseFunctionT = ReleaseFunctionT,
+		class = EnableIf<type::IsMemberFunction<InnerReleaseFunctionT>::value == false>,
+		class = EnableIf<std::is_same<type::GetFunPT<0, InnerReleaseFunctionT>, ObjectT*>::value>
+	>
 	void release(char*)
 	{
 		this->m_releaseFunction(this->m_object);
 	}
 
-	template <class = EnableIf<std::is_member_function_pointer<ReleaseFunctionT>::value == false>,
-	class = EnableIf<std::is_same<type::GetFunPT<0, ReleaseFunctionT>, ObjectT&>::value>>
+	template <class InnerReleaseFunctionT = ReleaseFunctionT,
+		class = EnableIf<type::IsMemberFunction<InnerReleaseFunctionT>::value == false>,
+		class = EnableIf<std::is_same<type::GetFunPT<0, InnerReleaseFunctionT>, ObjectT&>::value>
+	>
 		void release(short*)
 	{
 		this->m_releaseFunction(*this->m_object);

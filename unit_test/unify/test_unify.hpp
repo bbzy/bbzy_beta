@@ -15,25 +15,34 @@ void _test_function()
 		int fun_3() { return 4; }
 		int operator()() const { return 5; }
 		int& fun_4(int& v) const { return v; }
+		int* fun_5() { return nullptr; }
+		int&& fun_6() { int v = 0; return std::move(v); }
 	};
-	
+
+	static_assert(std::is_same<bbzy::type::ResType<decltype(makeDelegateFunction(&TestC::fun_1))>, int>::value, "");
 	auto f_1 = makeDelegateFunction(&TestC::fun_1);
 	assert(f_1() == 3);
 
+	static_assert(std::is_same<bbzy::type::ResType<decltype(makeDelegateFunction(&TestC::fun_2))>, int&>::value, "");
 	auto f_2 = makeDelegateFunction(&TestC::fun_2);
 	f_2(a) = 2;
 	assert(a == 2);
 
 	TestC tc;
+	static_assert(std::is_same<bbzy::type::ResType<decltype(makeDelegateFunction(&TestC::fun_3))>, int>::value, "");
 	auto f_3 = makeDelegateFunction(&TestC::fun_3);
 	assert(f_3(tc) == 4);
 
+	static_assert(std::is_same<bbzy::type::ResType<decltype(makeDelegateFunction(&TestC::fun_4))>, int&>::value, "");
 	auto f_4 = makeDelegateFunction(&TestC::fun_4);
 	f_4(tc, a) = 3;
 	assert(a == 3);
 
+	static_assert(std::is_same<bbzy::type::ResType<decltype(makeDelegateFunction(&TestC::fun_5))>, int*>::value, "");
 	auto f_5 = makeDelegateFunction(tc);
 	assert(f_5() == 5);
+
+	static_assert(std::is_same<bbzy::type::ResType<decltype(makeDelegateFunction(&TestC::fun_6))>, int&&>::value, "");
 }
 
 template <class = void>
