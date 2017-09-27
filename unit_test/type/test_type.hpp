@@ -8,6 +8,7 @@
 #include <map>
 #include <vector>
 #include <tuple>
+#include <list>
 
 template <class = void>
 void _test_result_type()
@@ -252,22 +253,68 @@ void _test_type_function()
 {
 	using namespace bbzy::type;
 	struct TestC;
-	static_assert(std::is_same<UniFunT<int(int, int)>, int(*)(int, int)>::value, "");
-	static_assert(std::is_same<UniFunT<int(*)(int, int)>, int(*)(int, int)>::value, "");
-	static_assert(std::is_same<UniFunT<int(TestC::*)(int, int)>, int(*)(TestC*, int, int)>::value, "");
-	static_assert(std::is_same<UniFunT<int(TestC::*)(int, int)const>, int(*)(const TestC*, int, int)>::value, "");
-	static_assert(std::is_same<UniFunT<int(int, int)>, int(*)(int, int)>::value, "");
+	static_assert(std::is_same<UniFunT<int (int, int)>, int(*)(int, int)>::value, "");
+	static_assert(std::is_same<UniFunT<int (*)(int, int)>, int(*)(int, int)>::value, "");
+	static_assert(std::is_same<UniFunT<int (TestC::*)(int, int)>, int(*)(TestC*, int, int)>::value, "");
+	static_assert(std::is_same<UniFunT<int (TestC::*)(int, int)const>, int(*)(const TestC*, int, int)>::value, "");
+	static_assert(std::is_same<UniFunT<int (int, int)>, int(*)(int, int)>::value, "");
 
-	static_assert(std::is_same<GetFunPW<int(int, long, short)>, TypeWrapper<int, long, short>> ::value, "");
-	static_assert(std::is_same<GetFunPW<int(TestC::*)(int, long, short)>, TypeWrapper<TestC*, int, long, short>>::value, "");
-	static_assert(std::is_same<GetFunPW<int()>, TypeWrapper<>> ::value, "");
-	static_assert(std::is_same<GetFunPW<int(TestC::*)()const>, TypeWrapper<const TestC*>>::value, "");
+	static_assert(std::is_same<GetFunPW<int (int, long, short)>, TypeWrapper<int, long, short>> ::value, "");
+	static_assert(std::is_same<GetFunPW<int (TestC::*)(int, long, short)>, TypeWrapper<TestC*, int, long, short>>::value, "");
+	static_assert(std::is_same<GetFunPW<int ()>, TypeWrapper<>> ::value, "");
+	static_assert(std::is_same<GetFunPW<int (TestC::*)()const>, TypeWrapper<const TestC*>>::value, "");
 
-	static_assert(std::is_same<GetFunPT<1, int(int, long, short)>, long>::value, "");
-	static_assert(std::is_same<GetFunPT<1, int(TestC::*)(int, long, short)>, int>::value, "");
+	static_assert(std::is_same<GetFunPT<1, int (int, long, short)>, long>::value, "");
+	static_assert(std::is_same<GetFunPT<1, int (TestC::*)(int, long, short)>, int>::value, "");
 
-	static_assert(std::is_same<GetMethodClassType<int(TestC::*)(int, long, short)>, TestC>::value, "");
-	static_assert(std::is_same<GetMethodClassType<int(TestC::*)(int, long, short)const>, const TestC>::value, "");
+	static_assert(std::is_same<GetMemberFunctionClassType<int (TestC::*)(int, long, short)>, TestC>::value, "");
+	static_assert(std::is_same<GetMemberFunctionClassType<int (TestC::*)(int, long, short)const>, const TestC>::value, "");
+
+	static_assert(IsFunction<int ()>::value, "");
+	static_assert(IsFunction<int (int, int&, int&&, int*, int**, int**&&)>::value, "");
+	static_assert(IsFunction<int (*)()>::value, "");
+	static_assert(IsFunction<int (*)(int, int&, int&&, int*, int**, int**&&)>::value, "");
+	static_assert(IsFunction<int (&)()>::value, "");
+	static_assert(IsFunction<int (&)(int, int&, int&&, int*, int**, int**&&)>::value, "");
+	static_assert(IsFunction<int (&&)()>::value, "");
+	static_assert(IsFunction<int (&&)(int, int&, int&&, int*, int**, int**&&)>::value, "");
+	static_assert(IsFunction<int (*&&)()>::value, "");
+	static_assert(IsFunction<int (*&&)(int, int&, int&&, int*, int**, int**&&)>::value, "");
+	static_assert(IsFunction<int (**)()>::value == false, "");
+	static_assert(IsFunction<int (**)(int, int&, int&&, int*, int**, int**&&)>::value == false, "");
+	static_assert(IsFunction<int (TestC::*)()>::value == false, "");
+	static_assert(IsFunction<int (TestC::*)(int, int&, int&&, int*, int**, int**&&)>::value == false, "");
+
+	static_assert(IsMemberFunction<int (TestC::*)()>::value, "");
+	static_assert(IsMemberFunction<int (TestC::*)(int, int&, int&&, int*, int**, int**&&)>::value, "");
+	static_assert(IsMemberFunction<int (TestC::**)()>::value == false, "");
+	static_assert(IsMemberFunction<int (TestC::**)(int, int&, int&&, int*, int**, int**&&)>::value == false, "");
+	static_assert(IsMemberFunction<int (TestC::*&)()>::value, "");
+	static_assert(IsMemberFunction<int (TestC::*&)(int, int&, int&&, int*, int**, int**&&)>::value, "");
+	static_assert(IsMemberFunction<int (TestC::*&&)()>::value, "");
+	static_assert(IsMemberFunction<int (TestC::*&&)(int, int&, int&&, int*, int**, int**&&)>::value, "");
+	static_assert(IsMemberFunction<int (TestC::**&&)()>::value == false, "");
+	static_assert(IsMemberFunction<int (TestC::**&&)(int, int&, int&&, int*, int**, int**&&)>::value == false, "");
+	static_assert(IsMemberFunction<int (TestC::***)()>::value == false, "");
+	static_assert(IsMemberFunction<int (TestC::***)(int, int&, int&&, int*, int**, int**&&)>::value == false, "");
+	static_assert(IsMemberFunction<int (*)()>::value == false, "");
+	static_assert(IsMemberFunction<int (*)(int, int&, int&&, int*, int**, int**&&)>::value == false, "");
+	static_assert(IsMemberFunction<int (&)()>::value == false, "");
+	static_assert(IsMemberFunction<int (&)(int, int&, int&&, int*, int**, int**&&)>::value == false, "");
+	static_assert(IsMemberFunction<int ()>::value == false, "");
+	static_assert(IsMemberFunction<int (int, int&, int&&, int*, int**, int**&&)>::value == false, "");
+	static_assert(IsMemberFunction<int (TestC::*)() const>::value, "");
+	static_assert(IsMemberFunction<int (TestC::*)(int, int&, int&&, int*, int**, int**&&) const>::value, "");
+	static_assert(IsMemberFunction<int (TestC::**)() const>::value == false, "");
+	static_assert(IsMemberFunction<int (TestC::**)(int, int&, int&&, int*, int**, int**&&) const>::value == false, "");
+	static_assert(IsMemberFunction<int (TestC::*&)() const>::value, "");
+	static_assert(IsMemberFunction<int (TestC::*&)(int, int&, int&&, int*, int**, int**&&) const>::value, "");
+	static_assert(IsMemberFunction<int (TestC::*&&)() const>::value, "");
+	static_assert(IsMemberFunction<int (TestC::*&&)(int, int&, int&&, int*, int**, int**&&) const>::value, "");
+	static_assert(IsMemberFunction<int (TestC::**&&)() const>::value == false, "");
+	static_assert(IsMemberFunction<int (TestC::**&&)(int, int&, int&&, int*, int**, int**&&) const>::value == false, "");
+	static_assert(IsMemberFunction<int (TestC::***)() const>::value == false, "");
+	static_assert(IsMemberFunction<int (TestC::***)(int, int&, int&&, int*, int**, int**&&) const>::value == false, "");
 }
 
 template <class = void>
@@ -276,6 +323,24 @@ void _test_type_wrapper()
 	using namespace bbzy::type;
 	static_assert(TypeWrapper<int, long>::size == 2, "");
 	static_assert(TypeWrapper<>::size == 0, "");
+}
+
+template <class = void>
+void _test_type_empty() {
+	using namespace bbzy::type;
+	int a = 0;
+	int& b = a;
+	int* c = &a;
+	int* d = nullptr;
+	int** e = nullptr;
+	int(*f)() = nullptr;
+
+	assert(isPointerEmpty(a) == false);
+	assert(isPointerEmpty(b) == false);
+	assert(isPointerEmpty(c) == false);
+	assert(isPointerEmpty(d));
+	assert(isPointerEmpty(e));
+	assert(isPointerEmpty(f));
 }
 
 template <class = void>
@@ -290,5 +355,6 @@ void test_type()
 	_test_index_type();
 	_test_type_function();
 	_test_type_wrapper();
+	_test_type_empty();
 	std::cout << "Test Type OK" << std::endl;
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 #include "../common.hpp"
 #include "copy_reference.hpp"
 #include "type_exist.hpp"

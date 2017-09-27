@@ -9,6 +9,58 @@ namespace bbzy {
 namespace type {
 namespace detail {
 template <class FunctionT>
+struct IsFunction
+{
+private:
+    using DecayedFunctionT = Decay<FunctionT>;
+
+private:
+    template <class HelperT>
+    struct Helper
+    {
+        enum {value = 0};
+    };
+
+    template <class RetT, class... ParamTs>
+    struct Helper<RetT(*)(ParamTs...)>
+    {
+        enum {value = 1};
+    };
+
+public:
+    enum {value = Helper<DecayedFunctionT>::value};
+};
+
+template <class MemberFunctionT>
+struct IsMemberFunction
+{
+private:
+    using DecayedMemberFunctionT = Decay<MemberFunctionT>;
+
+private:
+    template <class HelperT>
+    struct Helper
+    {
+        enum {value = 0};
+    };
+
+    template <class RetT, class ClassT, class... ParamTs>
+    struct Helper<RetT(ClassT::*)(ParamTs...)>
+    {
+        enum {value = 1};
+    };
+
+    template <class RetT, class ClassT, class... ParamTs>
+    struct Helper<RetT(ClassT::*)(ParamTs...) const>
+    {
+        enum {value = 1};
+    };
+
+public:
+    enum {value = Helper<DecayedMemberFunctionT>::value};
+};
+
+template <class FunctionT>
 struct UnifiedFunctionType
 {
 private:
@@ -139,14 +191,19 @@ public:
 	using type = typename Helper<typename UnifiedFunctionType<FunctionT>::type>::type;
 };
 
-template <class MethodT>
-struct GetMethodClassType
+template <class MemberFunctionT>
+struct GetMemberFunctionClassType
 {
-	using type = EnableIf<std::is_member_function_pointer<MethodT>::value, 
-		ElemT<typename GetFunctionParamType<0, MethodT>::type>>;
+	using type = EnableIf<IsMemberFunction<MemberFunctionT>::value,
+		ElemT<typename GetFunctionParamType<0, MemberFunctionT>::type>>;
 };
 
 }
+template <class FunctionT>
+using IsFunction = detail::IsFunction<FunctionT>;
+
+template <class MemberFunctionT>
+using IsMemberFunction = detail::IsMemberFunction<MemberFunctionT>;
 
 template <class FunctionT>
 using UnifiedFunctionType = typename detail::UnifiedFunctionType<FunctionT>::type;
@@ -166,8 +223,8 @@ using GetFunctionParamType = typename detail::GetFunctionParamType<index, Functi
 template <size_t index, class FunctionT>
 using GetFunPT = GetFunctionParamType<index, FunctionT>;
 
-template <class MethodT>
-using GetMethodClassType = typename detail::GetMethodClassType<MethodT>::type;
+template <class MemberFunctionT>
+using GetMemberFunctionClassType = typename detail::GetMemberFunctionClassType<MemberFunctionT>::type;
 
 }
 }

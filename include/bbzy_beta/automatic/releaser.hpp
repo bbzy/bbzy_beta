@@ -43,12 +43,12 @@ protected:
 };
 
 template <class ObjectT, class ReleaseFunctionT>
-class ReleaseObjectMethod :
+class ReleaseObjectMemberFunction :
 	public ReleaseObjectProperty<ObjectT>,
 	public ReleaseFunctionProperty<ReleaseFunctionT>
 {
 public:
-	ReleaseObjectMethod(ObjectT* object, ReleaseFunctionT&& releaseFunction) :
+	ReleaseObjectMemberFunction(ObjectT* object, ReleaseFunctionT&& releaseFunction) :
 		ReleaseObjectProperty<ObjectT>(object),
 		ReleaseFunctionProperty<ReleaseFunctionT>(std::forward<ReleaseFunctionT&&>(releaseFunction))
 	{
@@ -61,21 +61,26 @@ protected:
 	}
 
 private:
-	template <class = EnableIf<std::is_member_function_pointer<ReleaseFunctionT>::value>>
+	template <class InnerReleaseFunctionT = ReleaseFunctionT,
+		class = EnableIf<type::IsMemberFunction<InnerReleaseFunctionT>::value>>
 	void release(void*)
 	{
 		(this->m_object->*this->m_releaseFunction)();
 	}
 
-	template <class = EnableIf<std::is_member_function_pointer<ReleaseFunctionT>::value == false>,
-	class = EnableIf<std::is_same<type::GetFunPT<0, ReleaseFunctionT>, ObjectT*>::value>>
+	template <class InnerReleaseFunctionT = ReleaseFunctionT,
+		class = EnableIf<type::IsMemberFunction<InnerReleaseFunctionT>::value == false>,
+		class = EnableIf<std::is_same<type::GetFunPT<0, InnerReleaseFunctionT>, ObjectT*>::value>
+	>
 	void release(char*)
 	{
 		this->m_releaseFunction(this->m_object);
 	}
 
-	template <class = EnableIf<std::is_member_function_pointer<ReleaseFunctionT>::value == false>,
-	class = EnableIf<std::is_same<type::GetFunPT<0, ReleaseFunctionT>, ObjectT&>::value>>
+	template <class InnerReleaseFunctionT = ReleaseFunctionT,
+		class = EnableIf<type::IsMemberFunction<InnerReleaseFunctionT>::value == false>,
+		class = EnableIf<std::is_same<type::GetFunPT<0, InnerReleaseFunctionT>, ObjectT&>::value>
+	>
 		void release(short*)
 	{
 		this->m_releaseFunction(*this->m_object);
@@ -118,10 +123,10 @@ public:
 };
 
 template <class ObjectT, class ReleaseFunctionT>
-class ObjectReleaser : public ReleaseObjectMethod<ObjectT, ReleaseFunctionT>
+class ObjectReleaser : public ReleaseObjectMemberFunction<ObjectT, ReleaseFunctionT>
 {
 public:
-	using ReleaseObjectMethod<ObjectT, ReleaseFunctionT>::ReleaseObjectMethod;
+	using ReleaseObjectMemberFunction<ObjectT, ReleaseFunctionT>::ReleaseObjectMemberFunction;
 
 public:
 	~ObjectReleaser()
@@ -151,11 +156,11 @@ public:
 
 template <class ObjectT, class ReleaseFunctionT>
 class CancellableObjectReleaser :
-	public ReleaseObjectMethod<ObjectT, ReleaseFunctionT>,
+	public ReleaseObjectMemberFunction<ObjectT, ReleaseFunctionT>,
 	public CancellableProperty
 {
 public:
-	using ReleaseObjectMethod<ObjectT, ReleaseFunctionT>::ReleaseObjectMethod;
+	using ReleaseObjectMemberFunction<ObjectT, ReleaseFunctionT>::ReleaseObjectMemberFunction;
 
 public:
 	~CancellableObjectReleaser()

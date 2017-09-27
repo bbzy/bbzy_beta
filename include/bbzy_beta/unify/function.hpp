@@ -15,36 +15,48 @@ private:
 	struct Helper
 	{
 	public:
-		typedef type::ResultType<HelperFunctionT, ArgTs...> ReturnType;
+		typedef type::ResultType<HelperFunctionT&&, ArgTs&&...> ReturnType;
 
 	public:
-		template <class = EnableIf<std::is_function<HelperFunctionT>::value>>
-		static ReturnType call(void*, const HelperFunctionT& func, ArgTs&&... args)
+		template <class CallFunctionT = HelperFunctionT,
+			class = EnableIf<type::IsFunction<CallFunctionT&&>::value>>
+		static ReturnType call(void*, CallFunctionT&& func, ArgTs&&... args)
 		{
-			if (func == nullptr)
+			if (type::isPointerEmpty(func))
 			{
 				throw std::runtime_error("Null Pointer");
 			}
 			return std::forward<ReturnType>(func(std::forward<ArgTs&&>(args)...));
 		}
 
-		template <class = EnableIf<std::is_member_function_pointer<HelperFunctionT>::value>>
-		static ReturnType call(char*, const HelperFunctionT& func, ArgTs&&... args)
+		template <class CallFunctionT = HelperFunctionT,
+			class = EnableIf<type::IsMemberFunction<CallFunctionT&&>::value>>
+		static ReturnType call(char*, CallFunctionT&& func, ArgTs&&... args)
 		{
-			return std::forward<ReturnType>(callMethod(func, std::forward<ArgTs&&>(args)...));
+			if (type::isPointerEmpty(func))
+			{
+				throw std::runtime_error("Null Pointer");
+			}
+			return std::forward<ReturnType>(callMemberFunction(
+				std::forward<HelperFunctionT&&>(func), std::forward<ArgTs&&>(args)...));
 		}
 
-		template <class = EnableIf<
-			std::is_function<HelperFunctionT>::value == false &&
-			std::is_member_function_pointer<HelperFunctionT>::value == false>>
-		static ReturnType call(short*, const HelperFunctionT& func, ArgTs&&... args)
+		template <class CallFunctionT = HelperFunctionT,
+			class = EnableIf<
+				type::IsFunction<CallFunctionT&&>::value == false &&
+				type::IsMemberFunction<CallFunctionT&&>::value == false>>
+		static ReturnType call(short*, CallFunctionT&& func, ArgTs&&... args)
 		{
+			if (type::isPointerEmpty(func))
+			{
+				throw std::runtime_error("Null Pointer");
+			}
 			return std::forward<ReturnType>(func(std::forward<ArgTs&&>(args)...));
 		}
 
 	private:
 		template <class ObjectT, class... MemArgTs>
-		static ReturnType callMethod(const HelperFunctionT& func, ObjectT&& object, MemArgTs&&... args)
+		static ReturnType callMemberFunction(HelperFunctionT&& func, ObjectT&& object, MemArgTs&&... args)
 		{
 			return std::forward<ReturnType>((object.*func)(std::forward<MemArgTs&&>(args)...));
 		}
@@ -55,32 +67,50 @@ private:
 	{
 	}
 
-	template <class FunctionT>
-	friend DelegateFunction<FunctionT> makeDelegateFunction(FunctionT&& func);
+	template <class FriendFunctionT>
+	friend DelegateFunction<FriendFunctionT&&> makeDelegateFunction(FriendFunctionT&& func);
 
 public:
 	template <class... ArgTs>
-	typename Helper<FunctionT, ArgTs&&...>::ReturnType operator() (ArgTs&&... args) const
+	typename Helper<FunctionT&&, ArgTs&&...>::ReturnType operator() (ArgTs&&... args)
 	{
-		return std::forward<typename Helper<FunctionT, ArgTs&&...>::ReturnType>(
-			Helper<FunctionT, ArgTs...>::call(nullptr, m_function, std::forward<ArgTs&&>(args)...));
+		return std::forward<typename Helper<FunctionT&&, ArgTs&&...>::ReturnType>(
+			Helper<FunctionT&&, ArgTs&&...>::call(
+				nullptr, std::forward<FunctionT&&>(m_function), std::forward<ArgTs&&>(args)...));
 	}
 
 	template <class... ArgTs>
-	typename Helper<FunctionT, ArgTs&&...>::ReturnType call(ArgTs&&... args) const
+	typename Helper<FunctionT&&, ArgTs&&...>::ReturnType operator() (ArgTs&&... args) const
 	{
-		return std::forward<typename Helper<FunctionT, ArgTs&&...>::ReturnType>(
-			Helper<FunctionT, ArgTs...>::call(nullptr, m_function, std::forward<ArgTs&&>(args)...));
+		return std::forward<typename Helper<FunctionT&&, ArgTs&&...>::ReturnType>(
+			Helper<FunctionT&&, ArgTs&&...>::call(
+				nullptr, std::forward<FunctionT&&>(m_function), std::forward<ArgTs&&>(args)...));
+	}
+
+	template <class... ArgTs>
+	typename Helper<FunctionT&&, ArgTs&&...>::ReturnType call(ArgTs&&... args)
+	{
+		return std::forward<typename Helper<FunctionT&&, ArgTs&&...>::ReturnType>(
+			Helper<FunctionT&&, ArgTs&&...>::call(
+				nullptr, std::forward<FunctionT&&>(m_function), std::forward<ArgTs&&>(args)...));
+	}
+
+	template <class... ArgTs>
+	typename Helper<FunctionT&&, ArgTs&&...>::ReturnType call(ArgTs&&... args) const
+	{
+		return std::forward<typename Helper<FunctionT&&, ArgTs&&...>::ReturnType>(
+			Helper<FunctionT&&, ArgTs&&...>::call(
+				nullptr, std::forward<FunctionT&&>(m_function), std::forward<ArgTs&&>(args)...));
 	}
 
 private:
-	FunctionT m_function;
+	FunctionT&& m_function;
 };
 
 template <class FunctionT>
-DelegateFunction<FunctionT> makeDelegateFunction(FunctionT&& func)
+DelegateFunction<FunctionT&&> makeDelegateFunction(FunctionT&& func)
 {
-	return DelegateFunction<FunctionT>(std::forward<FunctionT>(func));
+	return DelegateFunction<FunctionT&&>(std::forward<FunctionT&&>(func));
 }
 
 }

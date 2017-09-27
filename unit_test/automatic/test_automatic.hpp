@@ -41,7 +41,7 @@ void test_releaser()
 			++s->b;
 		}
 		
-		void addCountMethod()
+		void addCountMemberFunction()
 		{
 			++b;
 		}
@@ -54,7 +54,7 @@ void test_releaser()
 		{
 		}
 
-		void recvCMethod() const
+		void recvCMemberFunction() const
 		{
 		}
 
@@ -85,7 +85,7 @@ void test_releaser()
 	S s;
 	{
 		s.b = 0;
-		auto methodReleaser = createReleaser(&s, &S::addCountMethod);
+		auto memberFunctionReleaser = createReleaser(&s, &S::addCountMemberFunction);
 		assert(s.b == 0);
 	}
 	assert(s.b == 1);
@@ -107,7 +107,7 @@ void test_releaser()
 	const S cs = {};
 	createReleaser(&cs, &S::recvSCPtr);
 	createReleaser(&cs, &S::recvSCRef);
-	createReleaser(&cs, &S::recvCMethod);
+	createReleaser(&cs, &S::recvCMemberFunction);
 }
 
 template <class = void>
