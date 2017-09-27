@@ -1,0 +1,2 @@
+cd unit_test &&
+rm -rf cmake_build_clang_3_8 cmake_build_default_clang cmake_build_default_gcc cmake_build_gcc_4_9
