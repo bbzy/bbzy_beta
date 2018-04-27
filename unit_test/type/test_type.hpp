@@ -323,6 +323,7 @@ void _test_type_wrapper()
 	using namespace bbzy::type;
 	static_assert(TypeWrapper<int, long>::size == 2, "");
 	static_assert(TypeWrapper<>::size == 0, "");
+	static_assert(std::is_same<TypeWrapper<int, int, long>::tuple, std::tuple<int, int, long>>::value, "");
 }
 
 template <class = void>
