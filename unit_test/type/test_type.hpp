@@ -14,22 +14,22 @@ template <class = void>
 void _test_result_type()
 {
 	using namespace bbzy::type;
-	
+
 	struct TestC
 	{
 		static int fun_1()
 		{
 			return 0;
 		}
-		static int fun_2(int) 
-		{ 
+		static int fun_2(int)
+		{
 			return 0;
 		}
-		int fun_3() 
-		{ 
-			return 0; 
+		int fun_3()
+		{
+			return 0;
 		}
-		int& fun_4(int) 
+		int& fun_4(int)
 		{
 			return m_mem_1;
 		}
@@ -198,7 +198,7 @@ void _test_template_class()
 	static_assert(std::is_same<ChElemTs<std::vector<int>&, long>, std::vector<long>&>::value, "");
 	static_assert(std::is_same<ChElemTs<const std::vector<int>, long>, std::vector<long>>::value, "");
 	static_assert(std::is_same<ChElemTs<const std::vector<int>&, long>, const std::vector<long>&>::value, "");
-	
+
 }
 
 template <class = void>
@@ -216,7 +216,7 @@ void _test_element_type()
 	static_assert(std::is_same<ElemT<const std::string*const*const>, const std::string*const>::value, "");
 	static_assert(std::is_same<ElemT<std::string(&)[3]>, std::string>::value, "");
 	static_assert(std::is_same<ElemT<const std::string(&)[5]>, const std::string>::value, "");
-	
+
 	static_assert(std::is_same<ElemRT<std::string>, char>::value, "");
 	static_assert(std::is_same<ElemRT<std::map<int, long>>, std::pair<const int, long>>::value, "");
 	static_assert(std::is_same<ElemRT<const std::map<int, long>&>, const std::pair<const int, long>&>::value, "");
@@ -257,7 +257,6 @@ void _test_type_function()
 	static_assert(std::is_same<UniFunT<int (*)(int, int)>, int(*)(int, int)>::value, "");
 	static_assert(std::is_same<UniFunT<int (TestC::*)(int, int)>, int(*)(TestC*, int, int)>::value, "");
 	static_assert(std::is_same<UniFunT<int (TestC::*)(int, int)const>, int(*)(const TestC*, int, int)>::value, "");
-	static_assert(std::is_same<UniFunT<int (int, int)>, int(*)(int, int)>::value, "");
 
 	static_assert(std::is_same<GetFunPW<int (int, long, short)>, TypeWrapper<int, long, short>> ::value, "");
 	static_assert(std::is_same<GetFunPW<int (TestC::*)(int, long, short)>, TypeWrapper<TestC*, int, long, short>>::value, "");
@@ -315,6 +314,12 @@ void _test_type_function()
 	static_assert(IsMemberFunction<int (TestC::**&&)(int, int&, int&&, int*, int**, int**&&) const>::value == false, "");
 	static_assert(IsMemberFunction<int (TestC::***)() const>::value == false, "");
 	static_assert(IsMemberFunction<int (TestC::***)(int, int&, int&&, int*, int**, int**&&) const>::value == false, "");
+
+	static_assert(std::is_same<ChFuncPT<int (int, int), long, long>, int (long, long)>::value, "");
+	static_assert(std::is_same<ChFuncPT<int (&)(int, int), long, long>, int (&)(long, long)>::value, "");
+	static_assert(std::is_same<ChFuncPT<int (*)(int, int), long, long>, int (*)(long, long)>::value, "");
+	static_assert(std::is_same<ChFuncPT<int (TestC::*)(int, int), long, long>, int (TestC::*)(long, long)>::value, "");
+	static_assert(std::is_same<ChFuncPT<int (TestC::*)(int, int)const, long, long>, int (TestC::*)(long, long) const>::value, "");
 }
 
 template <class = void>

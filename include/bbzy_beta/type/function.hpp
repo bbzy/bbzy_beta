@@ -4,6 +4,7 @@
 #include "index_type.hpp"
 #include "element_type.hpp"
 #include "type_wrapper.hpp"
+#include "template_class.hpp"
 
 namespace bbzy {
 namespace type {
@@ -130,6 +131,47 @@ struct GetMemberFunctionClassType
 		ElemT<typename GetFunctionParamType<0, MemberFunctionT>::type>>;
 };
 
+template <class FunctionT, class... NewParamTs>
+struct ChangeFunctionParamsType
+{
+private:
+	template <class HelperFunctionT>
+	struct Helper;
+
+	template <class RetT, class... HelperParamTs>
+	struct Helper<RetT(HelperParamTs...)>
+	{
+		using type = RetT(NewParamTs...);
+	};
+
+	template <class RetT, class... HelperParamTs>
+	struct Helper<RetT(&)(HelperParamTs...)>
+	{
+		using type = RetT(&)(NewParamTs...);
+	};
+
+	template <class RetT, class... HelperParamTs>
+	struct Helper<RetT(*)(HelperParamTs...)>
+	{
+		using type = RetT(*)(NewParamTs...);
+	};
+
+	template <class RetT, class ClsT, class... HelperParamTs>
+	struct Helper<RetT(ClsT::*)(HelperParamTs...)>
+	{
+		using type = RetT(ClsT::*)(NewParamTs...);
+	};
+
+	template <class RetT, class ClsT, class... HelperParamTs>
+	struct Helper<RetT(ClsT::*)(HelperParamTs...)const>
+	{
+		using type = RetT(ClsT::*)(NewParamTs...)const;
+	};
+
+public:
+	using type = typename Helper<FunctionT>::type;
+};
+
 }
 template <class FunctionT>
 using IsFunction = detail::IsFunction<FunctionT>;
@@ -157,6 +199,12 @@ using GetFunPT = GetFunctionParamType<index, FunctionT>;
 
 template <class MemberFunctionT>
 using GetMemberFunctionClassType = typename detail::GetMemberFunctionClassType<MemberFunctionT>::type;
+
+template <class FunctionT, class... NewParamTs>
+using ChangeFunctionParamsType = typename detail::ChangeFunctionParamsType<FunctionT, NewParamTs...>::type;
+
+template <class FunctionT, class... NewParamTs>
+using ChFuncPT = ChangeFunctionParamsType<FunctionT, NewParamTs...>;
 
 }
 }
