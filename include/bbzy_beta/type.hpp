@@ -1,4 +1,5 @@
 #pragma once
+
 #include "type/result_type.hpp"
 #include "type/lower_const.hpp"
 #include "type/copy_reference.hpp"

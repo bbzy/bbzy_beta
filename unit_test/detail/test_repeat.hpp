@@ -3,9 +3,9 @@
 #include <vector>
 
 void test_repeat() {
-    #define DEF(n) const int var_##n = n
+#define DEF(n) const int var_##n = n
     BBZY_STATEMENT_REPEAT_5(DEF);
-    #undef DEF
+#undef DEF
 
     static_assert(var_0 == 0, "");
     static_assert(var_1 == 1, "");
