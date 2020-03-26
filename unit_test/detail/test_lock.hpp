@@ -145,12 +145,12 @@ void test_wrapper() {
         assert(p == obj.lockRead());
     }
     assert(DummyLock::check({
-        LockType::LockWrite,
-        LockType::UnlockWrite,
-        LockType::LockRead,
-        LockType::UnlockRead,
-        LockType::LockRead,
-        LockType::UnlockRead,
+            LockType::LockWrite,
+            LockType::UnlockWrite,
+            LockType::LockRead,
+            LockType::UnlockRead,
+            LockType::LockRead,
+            LockType::UnlockRead,
     }));
 
     {

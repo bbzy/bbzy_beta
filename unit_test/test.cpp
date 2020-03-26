@@ -7,13 +7,12 @@
 
 #include <iostream>
 
-int main()
-{
-	test_type();
-	test_unity();
-	test_disambiguate();
-	test_automatic();
-	test_repeat();
+int main() {
+    test_type();
+    test_unity();
+    test_disambiguate();
+    test_automatic();
+    test_repeat();
     test_lock();
-	std::cout << "Test All OK" << std::endl;
+    std::cout << "Test All OK" << std::endl;
 }
