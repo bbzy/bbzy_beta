@@ -55,26 +55,17 @@ void test_scoped() {
         auto &&scoped = bbzy::lock::makeLockScoped(&lock);
         auto &&scopedCopy = std::move(scoped);
     }
-    assert(lock.check({
-            LockType::Lock,
-            LockType::Unlock
-    }));
+    assert(lock.check({LockType::Lock, LockType::Unlock}));
 
     {
         auto &&scoped = bbzy::lock::makeLockReadScoped(&lock);
     }
-    assert(lock.check({
-            LockType::LockRead,
-            LockType::UnlockRead
-    }));
+    assert(lock.check({LockType::LockRead, LockType::UnlockRead}));
 
     {
         auto &&scoped = bbzy::lock::makeLockWriteScoped(&lock);
     }
-    assert(lock.check({
-            LockType::LockWrite,
-            LockType::UnlockWrite
-    }));
+    assert(lock.check({LockType::LockWrite, LockType::UnlockWrite}));
 }
 
 
@@ -84,16 +75,22 @@ void test_atomic() {
         bbzy::lock::Atomic<std::pair<int, int>, DummyLock> v;
         v.store({1, 3});
         assert(v.load() == std::make_pair(1, 3));
-        assert(DummyLock::check({LockType::Lock, LockType::Unlock, LockType::Lock, LockType::Unlock}));
     }
+    assert(DummyLock::check({
+            LockType::Lock, LockType::Unlock,  // For storing
+            LockType::Lock, LockType::Unlock,  // For loading
+            LockType::Lock, LockType::Unlock,  // For destructing
+    }));
     {
         bbzy::lock::RWAtomic<std::pair<int, int>, DummyLock> v;
         v.store({1, 3});
         assert(v.load() == std::make_pair(1, 3));
-        assert(DummyLock::check(
-                {LockType::LockWrite, LockType::UnlockWrite, LockType::LockRead, LockType::UnlockRead}
-        ));
     }
+    assert(DummyLock::check({
+            LockType::LockWrite, LockType::UnlockWrite,  // For storing
+            LockType::LockRead, LockType::UnlockRead,  // For loading
+            LockType::LockWrite, LockType::UnlockWrite,  // For destructing
+    }));
 }
 
 template<class = void>
@@ -108,10 +105,9 @@ void test_wrapper() {
         assert((*v.lock()) == "34");
     }
     assert(DummyLock::check({
-            LockType::Lock,
-            LockType::Unlock,
-            LockType::Lock,
-            LockType::Unlock,
+            LockType::Lock, LockType::Unlock,  // For writing
+            LockType::Lock, LockType::Unlock,  // For reading
+            LockType::Lock, LockType::Unlock,  // For destructing
     }));
 
     {
@@ -127,10 +123,9 @@ void test_wrapper() {
         }
     }
     assert(DummyLock::check({
-            LockType::LockWrite,
-            LockType::UnlockWrite,
-            LockType::LockRead,
-            LockType::UnlockRead,
+            LockType::LockWrite, LockType::UnlockWrite,  // For writing
+            LockType::LockRead, LockType::UnlockRead,  // For reading
+            LockType::LockWrite, LockType::UnlockWrite,  // For destructing
     }));
 
     {
@@ -145,12 +140,10 @@ void test_wrapper() {
         assert(p == obj.lockRead());
     }
     assert(DummyLock::check({
-            LockType::LockWrite,
-            LockType::UnlockWrite,
-            LockType::LockRead,
-            LockType::UnlockRead,
-            LockType::LockRead,
-            LockType::UnlockRead,
+            LockType::LockWrite, LockType::UnlockWrite,  // For writing
+            LockType::LockRead, LockType::UnlockRead,  // For reading
+            LockType::LockRead, LockType::UnlockRead,  // For assert reading
+            LockType::LockWrite, LockType::UnlockWrite,  // For destructing
     }));
 
     {
@@ -166,12 +159,10 @@ void test_wrapper() {
         assert(p == obj.lockRead());
     }
     assert(DummyLock::check({
-            LockType::LockWrite,
-            LockType::UnlockWrite,
-            LockType::LockRead,
-            LockType::UnlockRead,
-            LockType::LockRead,
-            LockType::UnlockRead,
+            LockType::LockWrite, LockType::UnlockWrite,  // For writing
+            LockType::LockRead, LockType::UnlockRead,  // For reading
+            LockType::LockRead, LockType::UnlockRead,  // For assert reading
+            LockType::LockWrite, LockType::UnlockWrite,  // For destructing
     }));
 }
 
