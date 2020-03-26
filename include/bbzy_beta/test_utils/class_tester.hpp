@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include <utility>
 
@@ -12,24 +13,24 @@ public:
         std::cout << m_name << " => ~ClassTester()" << std::endl;
     }
 
-    ClassTester(const ClassTester& other) {
+    ClassTester(const ClassTester &other) {
         std::cout << other.m_name << " => ClassTester(const ClassTester&)" << std::endl;
         m_name = other.m_name;
     }
 
-    ClassTester(ClassTester&& other) {
+    ClassTester(ClassTester &&other) {
         std::cout << other.m_name << " => ClassTester(ClassTester&&)" << std::endl;
         m_name = other.m_name;
     }
 
 public:
-    ClassTester& operator = (const ClassTester& other) {
+    ClassTester &operator=(const ClassTester &other) {
         std::cout << m_name << ":" << other.m_name << " => ClassTester::operator = (const ClassTester&)" << std::endl;
         m_name = other.m_name;
         return *this;
     }
 
-    ClassTester& operator = (ClassTester&& other) {
+    ClassTester &operator=(ClassTester &&other) {
         std::cout << m_name << ":" << other.m_name << " => ClassTester::operator = (ClassTester&&)" << std::endl;
         m_name = other.m_name;
         return *this;
