@@ -15,6 +15,11 @@ namespace bbzy {
             >
             class Atomic {
             public:
+                ~Atomic() {
+                    store({});
+                }
+
+            public:
                 T load() const {
                     auto &&lockReadScoped = makeReadScoped(&m_lockable);
                     return m_value;

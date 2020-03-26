@@ -62,6 +62,11 @@ namespace bbzy {
         template<typename T, typename LockableT>
         class Wrapper {
         public:
+            ~Wrapper() {
+                (*lock()) = {};
+            }
+
+        public:
             detail::LockObject<T, LockScoped < LockableT>> lock() {
                 auto &&lockScoped = makeLockScoped(&m_lockable);
                 return {m_value, std::move(lockScoped)};
@@ -74,6 +79,11 @@ namespace bbzy {
 
         template<typename T, typename RWLockableT>
         class RWWrapper {
+        public:
+            ~RWWrapper() {
+                (*lockWrite()) = {};
+            }
+
         public:
             detail::LockObject<const T, LockReadScoped < RWLockableT>> lockRead() const {
                 auto &&lockReadScoped = makeLockReadScoped(&m_lockable);
@@ -92,6 +102,11 @@ namespace bbzy {
 
         template<typename T, typename RWLockableT>
         class DirtyObject {
+        public:
+            ~DirtyObject() {
+                (*lockWrite()) = {};
+            }
+
         public:
             detail::LockObject<T, bbzy::lock::LockWriteScoped<RWLockableT>> lockWrite() {
                 auto &&scoped = LockWriteScoped<RWLockableT>(&m_lock);
@@ -114,7 +129,10 @@ namespace bbzy {
         template<typename T, typename RWLockableT>
         class DirtyObjectRef {
         public:
-            DirtyObjectRef(RWLockableT &lock) : m_lock(&lock) {}
+            explicit DirtyObjectRef(RWLockableT &lock) : m_lock(&lock) {}
+            ~DirtyObjectRef() {
+                (*lockWrite()) = {};
+            }
 
         public:
             detail::LockObject<T, bbzy::lock::LockWriteScoped<RWLockableT>> lockWrite() {
