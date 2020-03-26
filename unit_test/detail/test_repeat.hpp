@@ -27,4 +27,5 @@ void test_repeat() {
     static_assert(va[3] == 2, "");
     static_assert(va[4] == 3, "");
     static_assert(va[5] == 4, "");
+    std::cout << "Test Repeat OK" << std::endl;
 }

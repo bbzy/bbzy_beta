@@ -129,6 +129,11 @@ void test_wrapper() {
     }));
 
     {
+        bbzy::lock::RWWrapper<std::unique_ptr<int>, DummyLock> obj;
+    }
+    g_lockTypeSeq.clear();
+
+    {
         bbzy::lock::DirtyObject<std::string, DummyLock> obj;
         (*obj.lockWrite()) = "2333";
         const std::string *p = nullptr;
@@ -168,9 +173,8 @@ void test_wrapper() {
 
 template<class = void>
 void test_lock() {
-    {
-        test_scoped();
-        test_atomic();
-        test_wrapper();
-    }
+    test_scoped();
+    test_atomic();
+    test_wrapper();
+    std::cout << "Test Lock OK" << std::endl;
 }
