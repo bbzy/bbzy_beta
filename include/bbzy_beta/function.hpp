@@ -1,2 +1,2 @@
 #pragma once
-#include "function/bind_this.hpp"
+#include "function/partial.hpp"
