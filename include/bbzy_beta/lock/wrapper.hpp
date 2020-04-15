@@ -70,7 +70,7 @@ namespace bbzy {
             }
 
         public:
-            inline detail::LockObject<T, LockScoped < LockableT>> lock() {
+            inline detail::LockObject<T, bbzy::lock::LockScoped<LockableT>> lock() {
                 auto &&lockScoped = makeLockScoped(&m_lockable);
                 return {*m_value, std::move(lockScoped)};
             }
