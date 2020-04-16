@@ -52,7 +52,7 @@ void test_partial() {
     static_assert(std::is_same<decltype(xx), C&>::value, "");
     xx.m_value = 9;
     assert(c.m_value == 9);
-    auto p1 = bbzy::function::partial(&C::fooD);
+    auto p1 = bbzy::function::partial(&C::fooD, &c);
     bbzy::Decay<decltype(p1)> p2{p1};
     p2 = p1;
     bbzy::Decay<decltype(p1)> p3{std::move(p2)};

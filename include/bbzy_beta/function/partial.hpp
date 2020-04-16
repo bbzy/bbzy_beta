@@ -37,9 +37,9 @@ namespace bbzy {
                 using RangeType = typename RangeCall<int(sizeof...(ArgTs)) - 1>::type;
 
             public:
-                inline Partial(FuncT&& func, ArgTs&& ... args) :
-                        m_func(unify::makeDelegateFunction(std::forward<FuncT&&>(func))),
-                        m_args(std::forward<ArgTs&&>(args)...) {
+                inline Partial(FuncT func, ArgTs ... args) :
+                        m_func(unify::makeDelegateFunction(std::move(func))),
+                        m_args(std::move(args)...) {
                 }
 
                 Partial(const Partial&) = default;
@@ -63,7 +63,7 @@ namespace bbzy {
 
             private:
                 DelegateFunctionT m_func;
-                std::tuple<ArgTs&& ...> m_args;
+                std::tuple<ArgTs...> m_args;
             };
         }
 
