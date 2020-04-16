@@ -46,6 +46,10 @@ namespace bbzy {
 
                 Partial(Partial&&) = default;
 
+                Partial& operator=(const Partial&) = default;
+
+                Partial& operator=(Partial&&) = default;
+
             public:
                 template<class... LeftArgTs>
                 inline ResType operator()(LeftArgTs&& ... leftArgs) {

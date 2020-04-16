@@ -49,11 +49,14 @@ void test_partial() {
     assert(bbzy::function::partial(&C::fooS, 3)(4) == -1);
     assert(bbzy::function::partial(&C::fooS, 3, 4)() == -1);
     auto&& xx = bbzy::function::partial(&C::fooD)(c);
-    assert((std::is_same<decltype(xx), C&>::value));
+    static_assert(std::is_same<decltype(xx), C&>::value, "");
     xx.m_value = 9;
     assert(c.m_value == 9);
-    auto yy = xx;
-    auto zz = std::move(xx);
+    auto p1 = bbzy::function::partial(&C::fooD);
+    bbzy::Decay<decltype(p1)> p2{p1};
+    p2 = p1;
+    bbzy::Decay<decltype(p1)> p3{std::move(p2)};
+    p3 = std::move(p1);
 }
 
 void test_function() {
