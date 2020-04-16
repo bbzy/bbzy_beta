@@ -68,8 +68,8 @@ namespace bbzy {
         }
 
         template<class FuncT, class... ArgTs>
-        detail::Partial<FuncT, ArgTs...> partial(FuncT&& func, ArgTs&& ... args) {
-            return {std::forward<FuncT&&>(func), std::forward<ArgTs&&>(args)...};
+        detail::Partial<FuncT, ArgTs...> partial(FuncT func, ArgTs ... args) {
+            return {std::move(func), std::move(args)...};
         }
     }
 }
