@@ -42,6 +42,10 @@ namespace bbzy {
                         m_args(std::forward<ArgTs&&>(args)...) {
                 }
 
+                Partial(const Partial&) = default;
+
+                Partial(Partial&&) = default;
+
             public:
                 template<class... LeftArgTs>
                 inline ResType operator()(LeftArgTs&& ... leftArgs) {

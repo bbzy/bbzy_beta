@@ -52,6 +52,8 @@ void test_partial() {
     assert((std::is_same<decltype(xx), C&>::value));
     xx.m_value = 9;
     assert(c.m_value == 9);
+    auto yy = xx;
+    auto zz = std::move(xx);
 }
 
 void test_function() {
