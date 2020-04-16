@@ -29,18 +29,18 @@ namespace bbzy {
             public:
                 template<class... ArgTs>
                 inline ResType operator()(ArgTs&& ... args) const {
-                    return std::forward<ResType>(helper(nullptr, std::forward<ArgTs&&>(args)...));
+                    return helper(nullptr, std::forward<ArgTs&&>(args)...);
                 }
 
             private:
                 template<class... ArgTs, class HelperFuncT = FunctionT, class = EnableIf<std::is_member_function_pointer<HelperFuncT>::value>>
                 inline ResType helper(void*, ArgTs&& ... args) const {
-                    return std::forward<ResType>(std::mem_fn(m_function)(std::forward<ArgTs&&>(args)...));
+                    return std::mem_fn(m_function)(std::forward<ArgTs&&>(args)...);
                 }
 
                 template<class... ArgTs, class HelperFuncT = FunctionT, class = EnableIf<!std::is_member_function_pointer<HelperFuncT>::value>>
                 inline ResType helper(char*, ArgTs&& ... args) const {
-                    return std::forward<ResType>(m_function(std::forward<ArgTs&&>(args)...));
+                    return m_function(std::forward<ArgTs&&>(args)...);
                 }
 
             private:

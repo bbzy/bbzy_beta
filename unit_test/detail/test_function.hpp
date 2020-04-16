@@ -26,6 +26,9 @@ public:
         return c;
     }
 
+    static void fooV() {
+    }
+
 public:
     int m_value{};
 };
@@ -57,6 +60,7 @@ void test_partial() {
     p2 = p1;
     bbzy::Decay<decltype(p1)> p3{std::move(p2)};
     p3 = std::move(p1);
+    bbzy::function::partial(&C::fooV)();
 }
 
 void test_function() {

@@ -27,10 +27,10 @@ namespace bbzy {
 
                     template<class PartialObjectT, class... LeftArgTs>
                     inline static ResType invoke(PartialObjectT&& partialObject, LeftArgTs&& ... leftArgs) {
-                        return std::forward<ResType>(partialObject->m_func(
+                        return partialObject->m_func(
                                 std::forward<bbzy::type::TypeAt<Indices, ArgTs&&...>>(std::get<Indices>(partialObject->m_args))...,
                                 std::forward<LeftArgTs&&>(leftArgs)...
-                        ));
+                        );
                     }
                 };
 
@@ -53,12 +53,12 @@ namespace bbzy {
             public:
                 template<class... LeftArgTs>
                 inline ResType operator()(LeftArgTs&& ... leftArgs) {
-                    return std::forward<ResType>(RangeType::invoke(this, std::forward<LeftArgTs&&>(leftArgs)...));
+                    return RangeType::invoke(this, std::forward<LeftArgTs&&>(leftArgs)...);
                 }
 
                 template<class... LeftArgTs>
                 inline ResType operator()(LeftArgTs&& ... leftArgs) const {
-                    return std::forward<ResType>(RangeType::invoke(this, std::forward<LeftArgTs&&>(leftArgs)...));
+                    return RangeType::invoke(this, std::forward<LeftArgTs&&>(leftArgs)...);
                 }
 
             private:
