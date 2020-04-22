@@ -15,24 +15,26 @@ namespace bbzy {
             >
             class Atomic {
             public:
-                ~Atomic() {
-                    store({});
+                inline Atomic() : m_value(new T) {}
+                inline ~Atomic() {
+                    auto &&lockWriteScoped = makeWriteScoped(&m_lockable);
+                    delete m_value;
                 }
 
             public:
-                T load() const {
+                inline T load() const {
                     auto &&lockReadScoped = makeReadScoped(&m_lockable);
-                    return m_value;
+                    return *m_value;
                 }
 
-                void store(T other) {
+                inline void store(T other) {
                     auto &&lockWriteScoped = makeWriteScoped(&m_lockable);
-                    m_value = std::move(other);
+                    *m_value = std::move(other);
                 }
 
             private:
                 mutable LockableT m_lockable{};
-                T m_value{};
+                T *m_value;
             };
         }
 

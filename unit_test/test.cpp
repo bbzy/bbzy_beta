@@ -4,6 +4,7 @@
 #include "detail/test_automatic.hpp"
 #include "detail/test_repeat.hpp"
 #include "detail/test_lock.hpp"
+#include "detail/test_function.hpp"
 
 #include <iostream>
 
@@ -14,5 +15,6 @@ int main() {
     test_automatic();
     test_repeat();
     test_lock();
+    test_function();
     std::cout << "Test All OK" << std::endl;
 }

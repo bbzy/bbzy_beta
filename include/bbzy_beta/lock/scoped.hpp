@@ -5,15 +5,15 @@ namespace bbzy {
             template<typename LockableT, void(LockableT::*lockMethod)(), void(LockableT::*unloackMethod)()>
             class LockScoped {
             public:
-                explicit LockScoped(LockableT *lock) : m_lock(lock) {
+                inline explicit LockScoped(LockableT *lock) : m_lock(lock) {
                     (m_lock->*lockMethod)();
                 };
 
-                LockScoped(LockScoped &&other) : m_lock(nullptr) {
+                inline LockScoped(LockScoped &&other) : m_lock(nullptr) {
                     std::swap(m_lock, other.m_lock);
                 }
 
-                ~LockScoped() {
+                inline ~LockScoped() {
                     if (m_lock) {
                         (m_lock->*unloackMethod)();
                     }
@@ -34,17 +34,17 @@ namespace bbzy {
         using LockWriteScoped = detail::LockScoped<RWLockableT, &RWLockableT::lockWrite, &RWLockableT::unlockWrite>;
 
         template<typename LockableT>
-        LockScoped<LockableT> makeLockScoped(LockableT *lock) {
+        inline LockScoped<LockableT> makeLockScoped(LockableT *lock) {
             return LockScoped<LockableT>(lock);
         }
 
         template<typename LockableT>
-        LockReadScoped<LockableT> makeLockReadScoped(LockableT *lock) {
+        inline LockReadScoped<LockableT> makeLockReadScoped(LockableT *lock) {
             return LockReadScoped<LockableT>(lock);
         }
 
         template<typename LockableT>
-        LockWriteScoped<LockableT> makeLockWriteScoped(LockableT *lock) {
+        inline LockWriteScoped<LockableT> makeLockWriteScoped(LockableT *lock) {
             return LockWriteScoped<LockableT>(lock);
         }
     }

@@ -31,16 +31,16 @@ namespace bbzy {
 
         }
 
-/**
-Extract return type.
-Supported T:
-1. Function Pointer;
-2. Function Reference;
-3. Member Function;
-4. Constant Member Function;
-5. Member Pointer(Returns reference);
-6. Callable Type with its param types;
-*/
+        /**
+        Extract return type.
+        Supported T:
+        1. Function Pointer;
+        2. Function Reference;
+        3. Member Function;
+        4. Constant Member Function;
+        5. Member Pointer(Returns reference);
+        6. Callable Type with its param types;
+        */
         template<class... Ts>
         using ResultType = typename detail::ResultType<Ts...>::type;
 
