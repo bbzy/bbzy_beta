@@ -1,3 +1,4 @@
 .*
 !.git*
 unit_test/cmake_build_*
+unit_test/cmake-build-*
