@@ -4,6 +4,7 @@
 #include <type_traits>
 #include "../common.hpp"
 #include "../type.hpp"
+#include "../function.hpp"
 
 namespace bbzy
 {
@@ -15,8 +16,7 @@ template<class ReleaseFunctionT>
 class ReleaseFunctionProperty
 {
 public:
-    ReleaseFunctionProperty(ReleaseFunctionT&& releaseFunction) :
-            m_releaseFunction(std::forward<ReleaseFunctionT&&>(releaseFunction))
+    explicit ReleaseFunctionProperty(ReleaseFunctionT releaseFunction) : m_releaseFunction(std::move(releaseFunction))
     {
     }
 
@@ -34,8 +34,9 @@ template<class ObjectT>
 class ReleaseObjectProperty
 {
 public:
-    ReleaseObjectProperty(ObjectT* object) : m_object(object)
-    {}
+    explicit ReleaseObjectProperty(ObjectT* object) : m_object(object)
+    {
+    }
 
 public:
     ObjectT* getObject() const
@@ -53,9 +54,9 @@ class ReleaseObjectMemberFunction :
         public ReleaseFunctionProperty<ReleaseFunctionT>
 {
 public:
-    ReleaseObjectMemberFunction(ObjectT* object, ReleaseFunctionT&& releaseFunction) :
+    ReleaseObjectMemberFunction(ObjectT* object, ReleaseFunctionT releaseFunction) :
             ReleaseObjectProperty<ObjectT>(object),
-            ReleaseFunctionProperty<ReleaseFunctionT>(std::forward<ReleaseFunctionT&&>(releaseFunction))
+            ReleaseFunctionProperty<ReleaseFunctionT>(std::move(releaseFunction))
     {
     }
 
@@ -66,34 +67,30 @@ protected:
     }
 
 private:
-    template<class InnerReleaseFunctionT = ReleaseFunctionT,
-            class = EnableIf <type::IsMemberFunction<InnerReleaseFunctionT>::value>>
+    template<
+            class InnerReleaseFunctionT = ReleaseFunctionT,
+            class = bbzy::EnableIf<type::IsMemberFunction<InnerReleaseFunctionT>::value>
+    >
     void release(void*)
     {
         (this->m_object->*this->m_releaseFunction)();
     }
 
-    template<class InnerReleaseFunctionT = ReleaseFunctionT,
-            class = EnableIf < type::IsMemberFunction<InnerReleaseFunctionT>::value == false>,
-
-    class
-
-    = EnableIf<std::is_same<type::GetFunPT < 0, InnerReleaseFunctionT>, ObjectT*>::value>
+    template<
+            class InnerReleaseFunctionT = ReleaseFunctionT,
+            class = bbzy::EnableIf<type::IsMemberFunction<InnerReleaseFunctionT>::value == false>,
+            class = bbzy::EnableIf<std::is_same<type::GetFunPT<0, InnerReleaseFunctionT>, ObjectT*>::value>
     >
-
     void release(char*)
     {
         this->m_releaseFunction(this->m_object);
     }
 
-    template<class InnerReleaseFunctionT = ReleaseFunctionT,
-            class = EnableIf < type::IsMemberFunction<InnerReleaseFunctionT>::value == false>,
-
-    class
-
-    = EnableIf<std::is_same<type::GetFunPT < 0, InnerReleaseFunctionT>, ObjectT&>::value>
+    template<
+            class InnerReleaseFunctionT = ReleaseFunctionT,
+            class = bbzy::EnableIf<type::IsMemberFunction<InnerReleaseFunctionT>::value == false>,
+            class= bbzy::EnableIf<std::is_same<type::GetFunPT<0, InnerReleaseFunctionT>, ObjectT&>::value>
     >
-
     void release(short*)
     {
         this->m_releaseFunction(*this->m_object);
@@ -187,35 +184,52 @@ public:
 
 }
 
+/**
+ * Create a releaser which @releaseFunction would be called as destructing.
+ * @param releaseFunction Function as void(*)().
+ * @return Releaser
+ * @remarks When object destructing, @releaseFunction will be called as releaseFunction().
+ */
 template<class ReleaseFunctionT>
-inline detail::Releaser<ReleaseFunctionT> createReleaser(ReleaseFunctionT&& releaseFunction)
+detail::Releaser<ReleaseFunctionT> createReleaser(ReleaseFunctionT releaseFunction)
 {
-    return detail::Releaser<ReleaseFunctionT>(
-            std::forward<ReleaseFunctionT&&>(releaseFunction));
+    return detail::Releaser<ReleaseFunctionT>(std::move(releaseFunction));
 }
 
+/**
+ * Create a object releaser.
+ * @param object The first argument of function @releaseFunction or this argument of menber function @releaseFunction.
+ * @param releaseFunction Function as void(*)(const ObjectT*) or member function as void(ObjectT::*)().
+ * @return ObjectReleaser
+ * @remarks When object releaser destructing, @releaseFunction will be called as releaseFunction(object) or object->releaseFunction.
+ */
 template<class ObjectT, class ReleaseFunctionT>
-inline detail::ObjectReleaser<ObjectT, ReleaseFunctionT> createReleaser(
-        ObjectT* object, ReleaseFunctionT&& releaseFunction)
+detail::ObjectReleaser<ObjectT, ReleaseFunctionT> createReleaser(ObjectT* object, ReleaseFunctionT releaseFunction)
 {
-    return detail::ObjectReleaser<ObjectT, ReleaseFunctionT>(
-            object, std::forward<ReleaseFunctionT&&>(releaseFunction));
+    return detail::ObjectReleaser<ObjectT, ReleaseFunctionT>(object, std::move(releaseFunction));
 }
 
+/**
+ * Create a cancellable releaser.
+ * @param releaseFunction Function as void(*)()
+ * @return When object destructing, @releaseFunction will be called as releaseFunction() but member function cancel() can disable the release operation.
+ */
 template<class ReleaseFunctionT>
-inline detail::CancellableReleaser<ReleaseFunctionT>
-createCancellableReleaser(ReleaseFunctionT&& releaseFunction)
+detail::CancellableReleaser<ReleaseFunctionT> createCancellableReleaser(ReleaseFunctionT releaseFunction)
 {
-    return detail::CancellableReleaser<ReleaseFunctionT>(
-            std::forward<ReleaseFunctionT&&>(releaseFunction));
+    return detail::CancellableReleaser<ReleaseFunctionT>(std::move(releaseFunction));
 }
 
+/**
+ * Create a cancellable object releaser
+ * @param object The first argument of function @releaseFunction or this argument of menber function @releaseFunction.
+ * @param releaseFunction Function as void(*)(const ObjectT*) or member function as void(ObjectT::*)().
+ * @return When object releaser destructing, @releaseFunction will be called as releaseFunction(object) or object->releaseFunction but member function cancel() can disable the release operation.
+ */
 template<class ObjectT, class ReleaseFunctionT>
-inline detail::CancellableObjectReleaser<ObjectT, ReleaseFunctionT> createCancellableReleaser(
-        ObjectT* object, ReleaseFunctionT&& releaseFunction)
+detail::CancellableObjectReleaser<ObjectT, ReleaseFunctionT> createCancellableReleaser(ObjectT* object, ReleaseFunctionT releaseFunction)
 {
-    return detail::CancellableObjectReleaser<ObjectT, ReleaseFunctionT>(
-            object, std::forward<ReleaseFunctionT&&>(releaseFunction));
+    return detail::CancellableObjectReleaser<ObjectT, ReleaseFunctionT>(object, std::move(releaseFunction));
 }
 }
 }
