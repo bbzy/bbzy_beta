@@ -14,28 +14,29 @@ template<typename T, typename LockScopedT>
 class LockObject
 {
 public:
-    inline LockObject(T& obj, LockScopedT&& lockScoped) :
+    LockObject(T& obj, LockScopedT&& lockScoped) :
             m_object(obj),
             m_lockScoped(std::move(lockScoped))
-    {}
+    {
+    }
 
 public:
-    inline T* operator->()
+    T* operator->()
     {
         return &m_object;
     }
 
-    inline const T* operator->() const
+    const T* operator->() const
     {
         return &m_object;
     }
 
-    inline T& operator*()
+    T& operator*()
     {
         return m_object;
     }
 
-    inline const T& operator*() const
+    const T& operator*() const
     {
         return m_object;
     }
@@ -49,13 +50,13 @@ template<typename T>
 class DirtyObject
 {
 public:
-    inline T& dirty()
+    T& dirty()
     {
         m_dirty = true;
         return m_object;
     }
 
-    inline const T& clear() const
+    const T& clear() const
     {
         if (m_dirty)
         {
@@ -76,17 +77,18 @@ template<typename T, typename LockableT>
 class Wrapper
 {
 public:
-    inline Wrapper() : m_value(new T)
-    {}
+    Wrapper() : m_value(new T)
+    {
+    }
 
-    inline ~Wrapper()
+    ~Wrapper()
     {
         auto&& lockScoped = makeLockScoped(&m_lockable);
         delete m_value;
     }
 
 public:
-    inline detail::LockObject<T, bbzy::lock::LockScoped<LockableT>> lock()
+    detail::LockObject<T, bbzy::lock::LockScoped<LockableT>> lock()
     {
         auto&& lockScoped = makeLockScoped(&m_lockable);
         return {*m_value, std::move(lockScoped)};
@@ -101,23 +103,24 @@ template<typename T, typename RWLockableT>
 class RWWrapper
 {
 public:
-    inline RWWrapper() : m_value(new T)
-    {}
+    RWWrapper() : m_value(new T)
+    {
+    }
 
-    inline ~RWWrapper()
+    ~RWWrapper()
     {
         auto&& lockWriteScoped = makeLockWriteScoped(&m_lockable);
         delete m_value;
     }
 
 public:
-    inline detail::LockObject<const T, bbzy::lock::LockReadScoped<RWLockableT>> lockRead() const
+    detail::LockObject<const T, bbzy::lock::LockReadScoped<RWLockableT>> lockRead() const
     {
         auto&& lockReadScoped = makeLockReadScoped(&m_lockable);
         return {*m_value, std::move(lockReadScoped)};
     }
 
-    inline detail::LockObject<T, bbzy::lock::LockWriteScoped<RWLockableT>> lockWrite()
+    detail::LockObject<T, bbzy::lock::LockWriteScoped<RWLockableT>> lockWrite()
     {
         auto&& lockWriteScoped = makeLockWriteScoped(&m_lockable);
         return {*m_value, std::move(lockWriteScoped)};
@@ -132,17 +135,18 @@ template<typename T, typename RWLockableT>
 class DirtyObject
 {
 public:
-    inline DirtyObject() : m_object(new detail::DirtyObject<T>)
-    {}
+    DirtyObject() : m_object(new detail::DirtyObject<T>)
+    {
+    }
 
-    inline ~DirtyObject()
+    ~DirtyObject()
     {
         auto&& scoped = LockWriteScoped<RWLockableT>(&m_lock);
         delete m_object;
     }
 
 public:
-    inline detail::LockObject<T, bbzy::lock::LockWriteScoped<RWLockableT>> lockWrite()
+    detail::LockObject<T, bbzy::lock::LockWriteScoped<RWLockableT>> lockWrite()
     {
         auto&& scoped = LockWriteScoped<RWLockableT>(&m_lock);
         return detail::LockObject<T, bbzy::lock::LockWriteScoped<RWLockableT>>(
@@ -151,7 +155,7 @@ public:
         );
     }
 
-    inline const T* lockRead() const
+    const T* lockRead() const
     {
         auto&& scopedLock = LockReadScoped<RWLockableT>(&m_lock);
         return &m_object->clear();
@@ -166,17 +170,17 @@ template<typename T, typename RWLockableT>
 class DirtyObjectRef
 {
 public:
-    inline explicit DirtyObjectRef(RWLockableT& lock) : m_lock(&lock), m_object(new detail::DirtyObject<T>)
+    explicit DirtyObjectRef(RWLockableT& lock) : m_lock(&lock), m_object(new detail::DirtyObject<T>)
     {}
 
-    inline ~DirtyObjectRef()
+    ~DirtyObjectRef()
     {
         auto&& scoped = LockWriteScoped<RWLockableT>(m_lock);
         delete m_object;
     }
 
 public:
-    inline detail::LockObject<T, bbzy::lock::LockWriteScoped<RWLockableT>> lockWrite()
+    detail::LockObject<T, bbzy::lock::LockWriteScoped<RWLockableT>> lockWrite()
     {
         auto&& scoped = LockWriteScoped<RWLockableT>(m_lock);
         return detail::LockObject<T, bbzy::lock::LockWriteScoped<RWLockableT>>(
@@ -185,7 +189,7 @@ public:
         );
     }
 
-    inline const T* lockRead() const
+    const T* lockRead() const
     {
         auto&& scopedLock = LockReadScoped<RWLockableT>(m_lock);
         return &m_object->clear();

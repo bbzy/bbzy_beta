@@ -19,22 +19,24 @@ template<
 class Atomic
 {
 public:
-    inline Atomic() : m_value(new T)
-    {}
-    inline ~Atomic()
+    Atomic() : m_value(new T)
+    {
+    }
+
+    ~Atomic()
     {
         auto&& lockWriteScoped = makeWriteScoped(&m_lockable);
         delete m_value;
     }
 
 public:
-    inline T load() const
+    T load() const
     {
         auto&& lockReadScoped = makeReadScoped(&m_lockable);
         return *m_value;
     }
 
-    inline void store(T other)
+    void store(T other)
     {
         auto&& lockWriteScoped = makeWriteScoped(&m_lockable);
         *m_value = std::move(other);

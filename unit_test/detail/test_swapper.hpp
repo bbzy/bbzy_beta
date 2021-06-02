@@ -2,7 +2,7 @@
 #include <string>
 #include "bbzy_beta/swapper.hpp"
 
-inline void test_swapper()
+void test_swapper()
 {
     struct S
     {

@@ -9,17 +9,17 @@ template<typename LockableT, void(LockableT::*lockMethod)(), void(LockableT::*un
 class LockScoped
 {
 public:
-    inline explicit LockScoped(LockableT* lock) : m_lock(lock)
+    explicit LockScoped(LockableT* lock) : m_lock(lock)
     {
         (m_lock->*lockMethod)();
     };
 
-    inline LockScoped(LockScoped&& other) : m_lock(nullptr)
+    LockScoped(LockScoped&& other) : m_lock(nullptr)
     {
         std::swap(m_lock, other.m_lock);
     }
 
-    inline ~LockScoped()
+    ~LockScoped()
     {
         if (m_lock)
         {
@@ -42,19 +42,19 @@ template<typename RWLockableT>
 using LockWriteScoped = detail::LockScoped<RWLockableT, &RWLockableT::lockWrite, &RWLockableT::unlockWrite>;
 
 template<typename LockableT>
-inline LockScoped<LockableT> makeLockScoped(LockableT* lock)
+LockScoped<LockableT> makeLockScoped(LockableT* lock)
 {
     return LockScoped<LockableT>(lock);
 }
 
 template<typename LockableT>
-inline LockReadScoped<LockableT> makeLockReadScoped(LockableT* lock)
+LockReadScoped<LockableT> makeLockReadScoped(LockableT* lock)
 {
     return LockReadScoped<LockableT>(lock);
 }
 
 template<typename LockableT>
-inline LockWriteScoped<LockableT> makeLockWriteScoped(LockableT* lock)
+LockWriteScoped<LockableT> makeLockWriteScoped(LockableT* lock)
 {
     return LockWriteScoped<LockableT>(lock);
 }
